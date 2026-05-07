@@ -1,6 +1,9 @@
 :root {
   --bg: #0f172a;
   --bg-accent: #111827;
+  --grad-1: #1e293b;                                  /*added*/
+  --grad-2: #0ea5e9;
+  --grad-3: #7c3aed;
   --card: rgba(255, 255, 255, 0.08);
   --card-strong: rgba(255, 255, 255, 0.14);
   --text: #f8fafc;
@@ -26,9 +29,9 @@ body {
   font-family: var(--font);
   color: var(--text);
   background:
-    radial-gradient(circle at 20% 20%, #1e293b, transparent 55%),
-    radial-gradient(circle at 80% 10%, #0ea5e9, transparent 35%),
-    radial-gradient(circle at 80% 85%, #7c3aed, transparent 40%), var(--bg);
+    radial-gradient(circle at 20% 20%, var(--grad-1), transparent 55%),            /*change to --grad-1 调节背景颜色*/
+    radial-gradient(circle at 80% 10%, var(--grad-2), transparent 35%),
+    radial-gradient(circle at 80% 85%, var(--grad-3), transparent 40%), var(--bg);
   padding: 32px;
 }
 
@@ -158,6 +161,11 @@ body {
     border 0.2s ease,
     transform 0.2s ease;
 }
+ /* added 目录颜色*/
+.form__field select option { 
+  background: #06064ad1;
+  color: var(--text);
+} 
 
 .form__field input:focus,
 .form__field select:focus {
@@ -238,8 +246,8 @@ body {
   gap: 16px;
   padding: 14px 16px;
   border-radius: 14px;
-  background: rgba(15, 23, 42, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--card-strong);           /*账单明细背景*/          
+  border: 1px solid var(--border);
   transition:
     transform 0.2s ease,
     background 0.2s ease;
@@ -247,7 +255,8 @@ body {
 
 .transaction:hover {
   transform: translateY(-2px);
-  background: rgba(15, 23, 42, 0.55);
+  background: var(--card);                  /*账单明细悬浮背景*/         
+  filter: brightness(0.97);
 }
 
 .transaction__title {
@@ -267,8 +276,8 @@ body {
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
-  background: rgba(56, 189, 248, 0.15);
-  color: #bae6fd;
+  background: rgba(136, 215, 249, 0.85);     /*账单明细左下角label*/       
+  color: #18506e;
 }
 
 .amount {
@@ -325,7 +334,7 @@ body {
 }
 
 .btn--danger {
-  background: #ef4444;
+  background: #ff8585;
   color: #0f172a;
 }
 
@@ -337,9 +346,9 @@ body {
 #financeChart {
   width: 100%;
   height: 260px;
-  background: rgba(15, 23, 42, 0.35);
+  background: var(--card-strong);                               /*chart 背景*/
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   padding: 6px;
 }
 
@@ -394,12 +403,12 @@ body {
 .modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(15, 23, 42, 0.35);           /*cancel弹窗屏幕背景*/
 }
 
 .modal__content {
   position: relative;
-  background: var(--card);
+  background: #132a50ab;                        /*cancel弹窗背景*/
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
@@ -407,6 +416,12 @@ body {
   box-shadow: var(--shadow);
   z-index: 1;
 }
+/*cancel弹窗浅色背景*/
+body.theme-light .modal__content {
+  background: #c9d9ffb5;
+}
+
+
 
 .modal__text {
   color: var(--muted);
@@ -430,7 +445,7 @@ body {
 }
 
 .toast {
-  background: rgba(15, 23, 42, 0.9);
+  background: var(--bg-accent);                                   /*fixed*/
   border: 1px solid var(--border);
   padding: 12px 16px;
   border-radius: 12px;
@@ -504,12 +519,17 @@ body {
 body.theme-light {
   --bg: #f8fafc;
   --bg-accent: #e2e8f0;
+  --grad-1: #dbeafe;                      /*added*/
+  --grad-2: #bae6fd;
+  --grad-3: #e0e7ff;
   --card: rgba(15, 23, 42, 0.04);
-  --card-strong: rgba(15, 23, 42, 0.08);
+  --card-strong: rgba(15, 23, 42, 0.10); /*fixed 0.08->0.10*/
   --text: #0f172a;
   --muted: #475569;
-  --border: rgba(15, 23, 42, 0.1);
+  --border: rgba(15, 23, 42, 0.15);      /*fixed 0.10->0.15*/
   --primary: #1d4ed8;
+  --income: #16a34a;                    /*added*/
+  --expense: #dc2626;                   /*added*/
   --shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
 }
 

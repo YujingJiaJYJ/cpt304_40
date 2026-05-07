@@ -69,6 +69,7 @@ const setTheme = (theme) => {
   dom.themeToggleBtn.textContent =
     theme === "light" ? "Dark Mode" : "Light Mode";
   saveTheme();
+  requestAnimationFrame(() => renderChart());                                                             //added
 };
 
 const loadTheme = () => {
@@ -376,6 +377,11 @@ const renderChart = () => {
   const incomeHeight = (income / maxValue) * (height - 80);
   const expenseHeight = (expenses / maxValue) * (height - 80);
 
+  // read the character color                                                                     added
+  const isLight = document.body.classList.contains("theme-light");
+  const textColor = isLight ? "#0f172a" : "#f8fafc";
+  const mutedColor = isLight ? "#475569" : "rgba(255,255,255,0.2)";
+
   ctx.strokeStyle = "rgba(255,255,255,0.08)";
   ctx.beginPath();
   ctx.moveTo(40, baseY);
@@ -393,8 +399,8 @@ const renderChart = () => {
     expenseHeight,
   );
 
-  ctx.fillStyle = "#f8f4e9";
-  ctx.font = "14px sans-serif";
+  ctx.fillStyle = textColor;            /*change to textcolor */
+  ctx.font = "14px sans-serif";    
   ctx.fillText("Income", 170, baseY + 20);
   ctx.fillText("Expense", 160 + barWidth + gap, baseY + 20);
 

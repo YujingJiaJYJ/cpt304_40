@@ -44,6 +44,7 @@ const dom = {
   cancelDeleteBtn: document.getElementById("cancelDeleteBtn"),
   toastContainer: document.getElementById("toastContainer"),
   skeleton: document.getElementById("skeleton"),
+  langToggleBtn: document.getElementById("langToggleBtn"), // i18n toggle button
 };
 
 const generateID = () => {
@@ -67,7 +68,7 @@ const setTheme = (theme) => {
   state.theme = theme;
   document.body.classList.toggle("theme-light", theme === "light");
   dom.themeToggleBtn.textContent =
-    theme === "light" ? "Dark Mode" : "Light Mode";
+    theme === "light" ? i18n.t("darkMode") : i18n.t("lightMode"); //i18n
   saveTheme();
   requestAnimationFrame(() => renderChart());                                                             //added
 };
@@ -116,22 +117,22 @@ const validateForm = () => {
   let isValid = true;
 
   if (!title) {
-    setError(dom.titleInput, dom.titleError, "Title is required.");
+    setError(dom.titleInput, dom.titleError, i18n.t("errTitle") );// i18n
     isValid = false;
   }
 
   if (!amountValue || Number.isNaN(amount) || amount === 0) {
-    setError(dom.amountInput, dom.amountError, "Enter a valid amount.");
+    setError(dom.amountInput, dom.amountError, i18n.t("errAmount") );// i18n
     isValid = false;
   }
 
   if (!category) {
-    setError(dom.categoryInput, dom.categoryError, "Select a category.");
+    setError(dom.categoryInput, dom.categoryError, i18n.t("errCategory") );// i18n
     isValid = false;
   }
 
   if (!date) {
-    setError(dom.dateInput, dom.dateError, "Pick a date.");
+    setError(dom.dateInput, dom.dateError, i18n.t("errDate") );  // i18n
     isValid = false;
   }
 
@@ -141,14 +142,14 @@ const validateForm = () => {
 const resetFormState = () => {
   dom.form.reset();
   state.editingId = null;
-  dom.submitBtn.textContent = "Add Transaction";
+  dom.submitBtn.textContent = i18n.t("submitBtn"); // i18n
   dom.cancelEditBtn.hidden = true;
   clearErrors();
 };
 
 const addTransaction = () => {
   if (!validateForm()) {
-    showToast("Please fix the highlighted fields.", "error");
+    showToast(i18n.t("toastFixFields"), "error"); // i18n
     return;
   }
 
@@ -161,7 +162,7 @@ const addTransaction = () => {
     state.transactions = state.transactions.map((tx) =>
       tx.id === state.editingId ? { ...tx, title, amount, category, date } : tx,
     );
-    showToast("Transaction updated.");
+    showToast(i18n.t("toastUpdated")); //i18n
   } else {
     const newTransaction = {
       id: generateID(),
@@ -172,7 +173,7 @@ const addTransaction = () => {
     };
 
     state.transactions = [newTransaction, ...state.transactions];
-    showToast("Transaction added.");
+    showToast(i18n.t("toastAdded")); //i18n
   }
 
   resetFormState();
@@ -190,17 +191,17 @@ const startEditing = (id) => {
   dom.dateInput.value = transaction.date;
 
   state.editingId = id;
-  dom.submitBtn.textContent = "Save Changes";
+  dom.submitBtn.textContent = i18n.t("saveChanges"); // i18n
   dom.cancelEditBtn.hidden = false;
   dom.titleInput.focus();
-  showToast("Editing mode enabled.");
+  showToast(i18n.t("toastEditing")); // i18n
 };
 
 const deleteTransaction = (id) => {
   state.transactions = state.transactions.filter((tx) => tx.id !== id);
   saveToLocalStorage();
   renderApp();
-  showToast("Transaction deleted.");
+  showToast(i18n.t("toastDeleted")); //i18n
 };
 
 const openConfirmModal = (id) => {
@@ -236,16 +237,16 @@ const renderSummary = () => {
 const renderTransactions = () => {
   const filtered = filterTransactions();
 
-  dom.resultsCount.textContent = `${filtered.length} results`;
+  dom.resultsCount.textContent = i18n.t("results", filtered.length); // i18n
 
   if (filtered.length === 0) {
     dom.transactionsList.innerHTML = `
       <div class="transactions__empty">
         <div class="empty__icon">+</div>
-        <p>No transactions yet. Add your first one to get started.</p>
-        <button class="btn btn--accent empty-add-btn" type="button">Add First Transaction</button>
+        <p>${i18n.t("noTransactions")}</p>
+        <button class="btn btn--accent empty-add-btn" type="button">${i18n.t("addFirst")}</button>
       </div>
-    `;
+    `; // i18n
     return;
   }
 
@@ -382,7 +383,7 @@ const renderChart = () => {
   const textColor = isLight ? "#0f172a" : "#f8fafc";
   const mutedColor = isLight ? "#475569" : "rgba(255,255,255,0.2)";
 
-  ctx.strokeStyle = "rgba(255,255,255,0.08)";
+   ctx.strokeStyle = mutedColor; // i18n: uses theme-aware muted color
   ctx.beginPath();
   ctx.moveTo(40, baseY);
   ctx.lineTo(width - 40, baseY);
@@ -401,8 +402,8 @@ const renderChart = () => {
 
   ctx.fillStyle = textColor;            /*change to textcolor */
   ctx.font = "14px sans-serif";    
-  ctx.fillText("Income", 170, baseY + 20);
-  ctx.fillText("Expense", 160 + barWidth + gap, baseY + 20);
+  ctx.fillText(i18n.t("chartIncome"), 170, baseY + 20); // i18n
+  ctx.fillText(i18n.t("chartExpense"), 160 + barWidth + gap, baseY + 20); // i18n
 
   ctx.fillText(formatCurrency(income), 150, baseY - incomeHeight - 10);
   ctx.fillText(
@@ -420,7 +421,7 @@ const renderApp = () => {
 
 const exportToCSV = () => {
   if (state.transactions.length === 0) {
-    showToast("No data to export.", "error");
+    showToast(i18n.t("toastNoData")); //i18n
     return;
   }
 
@@ -449,13 +450,16 @@ const exportToCSV = () => {
   link.remove();
   URL.revokeObjectURL(url);
 
-  showToast("CSV exported.");
+  showToast(i18n.t("toastCsvExported")); //i18n
 };
 
 const initializeApp = () => {
   loadFromLocalStorage();
   loadTheme();
+  renderI18n(); // i18n: apply translations on load
   renderApp();
+  initGdprEvents(); // GDPR: wire up events first, then show banner
+  initGdpr();   // GDPR: show banner if no consent stored
 
   setTimeout(() => {
     dom.skeleton.classList.add("is-hidden");
@@ -520,20 +524,115 @@ const initializeApp = () => {
     setTheme(state.theme === "dark" ? "light" : "dark");
   });
 
+  // i18n: toggle language and re-render all text + chart
+  dom.langToggleBtn.addEventListener("click", () => {
+    i18n.setLocale(i18n.locale === "en" ? "zh" : "en");
+    renderI18n();
+    renderApp(); // re-render transactions list + chart labels
+  });
+
   dom.confirmDeleteBtn.addEventListener("click", () => {
     if (state.pendingDeleteId) {
       deleteTransaction(state.pendingDeleteId);
     }
     closeConfirmModal();
   });
-
+ 
   dom.cancelDeleteBtn.addEventListener("click", closeConfirmModal);
-
+ 
   dom.confirmModal.addEventListener("click", (e) => {
     if (e.target.dataset.close) {
       closeConfirmModal();
     }
   });
+};
+ 
+//i18n: Render all translatable static text
+// Applies current locale to every static UI element in one pass
+const renderI18n = () => {
+  const set = (id, key) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = i18n.t(key);
+  };
+  const setAttr = (id, attr, key) => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute(attr, i18n.t(key));
+  };
+ 
+  // Header
+  set("appEyebrow", "eyebrow");
+  set("appTitle", "title");
+  set("appSubtitle", "subtitle");
+  set("exportCsvBtn", "exportCsv");
+  set("resetFiltersBtn", "resetFilters");
+  set("langToggleBtn", "langToggle");
+ 
+  // Summary labels
+  set("labelBalance", "totalBalance");
+  set("labelIncome", "totalIncome");
+  set("labelExpenses", "totalExpenses");
+ 
+  // Chart header
+  set("chartTitle", "cashFlow");
+  set("chartSubtitle", "incomeVsExpense");
+ 
+  // Form
+  set("formTitle", "addTransaction");
+  set("spanTitle", "labelTitle");
+  set("spanAmount", "labelAmount");
+  set("spanCategory", "labelCategory");
+  set("spanDate", "labelDate");
+  setAttr("titleInput", "placeholder", "placeholderTitle");
+  setAttr("amountInput", "placeholder", "placeholderAmount");
+  setAttr("searchInput", "placeholder", "placeholderSearch");
+ 
+  // Category options (form + filter share same keys)
+  const cats = ["Salary","Business","Investments","Housing","Food","Transport","Health","Entertainment","Education","Other"];
+  const catKeys = ["catSalary","catBusiness","catInvestments","catHousing","catFood","catTransport","catHealth","catEntertainment","catEducation","catOther"];
+  ["categoryInput", "filterCategory"].forEach((selectId) => {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    sel.querySelectorAll("option").forEach((opt) => {
+      const idx = cats.indexOf(opt.value);
+      if (idx !== -1) opt.textContent = i18n.t(catKeys[idx]);
+      if (opt.value === "") opt.textContent = i18n.t("selectCategory");
+      if (opt.value === "all") opt.textContent = i18n.t("allCategories");
+    });
+  });
+ 
+  // Filter type options
+  const filterTypeEl = document.getElementById("filterType");
+  if (filterTypeEl) {
+    filterTypeEl.querySelectorAll("option").forEach((opt) => {
+      if (opt.value === "all") opt.textContent = i18n.t("filterAll");
+      if (opt.value === "income") opt.textContent = i18n.t("filterIncome");
+      if (opt.value === "expense") opt.textContent = i18n.t("filterExpense");
+    });
+  }
+ 
+  // Filters section
+  set("filtersTitle", "filtersTitle");
+  set("spanFilterCategory", "filterCategory");
+  set("spanFilterType", "filterType");
+  set("spanSearch", "searchByTitle");
+ 
+  // Transactions section
+  set("transactionsTitle", "transactionsTitle");
+ 
+  // Modal
+  set("confirmTitle", "deleteTitle");
+  set("confirmText", "deleteText");
+  set("cancelDeleteBtn", "cancel");
+  set("confirmDeleteBtn", "delete");
+ 
+  // Cancel edit btn
+  set("cancelEditBtn", "cancelEdit");
+ 
+  // Submit btn: keep editing state
+  dom.submitBtn.textContent = i18n.t(state.editingId ? "saveChanges" : "submitBtn");
+ 
+  // GDPR
+  renderGdprText();
 };
 
 initializeApp();

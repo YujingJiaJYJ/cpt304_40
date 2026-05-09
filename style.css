@@ -569,3 +569,44 @@ body.theme-light .bg-gradient {
     text-align: left;
   }
 }
+
+/*GDPR: Cookie Banner*/
+.cookie-banner {
+  display: none; 
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92vw, 560px);
+  background: var(--bg-accent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow);
+  z-index: 70;
+  font-size: 13px;
+  color: var(--muted);
+}
+ 
+.cookie-banner p {
+  flex: 1;
+  min-width: 200px;
+}
+ 
+.cookie-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+ 
+.cookie-privacy-link {
+  color: var(--primary);
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}

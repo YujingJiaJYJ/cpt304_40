@@ -19,14 +19,11 @@
         <div>
           <p class="app__eyebrow">Personal Finance</p>
           <h1 class="app__title">Advanced Finance Tracker</h1>
-          <p class="app__subtitle">
-            Track income, expenses, and your balance with clarity.
-          </p>
+          <p class="app__subtitle">Track income, expenses, and your balance with clarity.</p>
         </div>
         <div class="app__actions">
-          <button class="btn btn--ghost" id="themeToggleBtn" type="button">
-            Light Mode
-          </button>
+          <button class="btn btn--ghost" id="themeToggleBtn" type="button">Light Mode</button>
+          <button class="btn btn--ghost" id="langToggleBtn" type="button">中文</button> <!-- i18n -->
           <button class="btn btn--accent" id="exportCsvBtn" type="button">
             Export CSV
           </button>
@@ -211,6 +208,30 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
+
+    <!--GDPR: Cookie Banner-->
+    <div id="cookieBanner" class="cookie-banner">
+      <p id="cookieText">We use localStorage to save your data locally. No cookies are sent to any server.</p>
+      <div class="cookie-banner__actions">
+        <a href="#" id="cookiePrivacyLink" class="cookie-privacy-link">Privacy Policy</a>
+        <button id="cookieDeclineBtn" class="btn btn--ghost" type="button">Decline</button>
+        <button id="cookieAcceptBtn" class="btn btn--primary" type="button">Accept</button>
+      </div>
+    </div>
+ 
+    <!--GDPR: Privacy Policy Modal-->
+    <div id="privacyModal" class="modal" aria-hidden="true">
+      <div class="modal__content" role="dialog" aria-modal="true">
+        <h3 class="section-title" id="privacyTitle">Privacy Policy</h3>
+        <p class="modal__text" id="privacyBody">This app stores your financial data exclusively in your browser's localStorage.</p>
+        <div class="modal__actions">
+          <button id="privacyCloseBtn" class="btn btn--primary" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+ 
+    <script src="i18n.js"></script>
+    <script src="gdpr.js"></script>
     <script src="main.js"></script>
   </body>
 </html>

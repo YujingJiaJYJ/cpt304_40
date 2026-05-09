@@ -105,6 +105,31 @@ const setError = (input, errorEl, message) => {
   errorEl.textContent = message;
 };
 
+const escapeHTML = (value) => {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+};
+
+const escapeCsvCell = (value) => {
+  let cell = String(value ?? "");
+
+  // Prevent CSV formula injection in spreadsheet software
+  if (/^[=+\-@]/.test(cell)) {
+    cell = "'" + cell;
+  }
+
+  // Escape quotes, commas, and line breaks
+  if (/[",\n\r]/.test(cell)) {
+    cell = `"${cell.replaceAll('"', '""')}"`;
+  }
+
+  return cell;
+};
+
 const validateForm = () => {
   clearErrors();
 
@@ -119,7 +144,10 @@ const validateForm = () => {
   if (!title) {
     setError(dom.titleInput, dom.titleError, i18n.t("errTitle") );// i18n
     isValid = false;
-  }
+  }else if (title.length > 80) {
+  setError(dom.titleInput, dom.titleError, "Title must be 80 characters or fewer.");
+  isValid = false;
+}
 
   if (!amountValue || Number.isNaN(amount) || amount === 0) {
     setError(dom.amountInput, dom.amountError, i18n.t("errAmount") );// i18n
@@ -269,19 +297,25 @@ const renderTransactionItem = (tx) => {
   const formattedAmount = formatCurrency(tx.amount);
   const formattedDate = formatDate(tx.date);
 
+  const safeTitle = escapeHTML(tx.title);
+  const safeCategory = escapeHTML(tx.category);
+  const safeDate = escapeHTML(formattedDate);
+  const safeAmount = escapeHTML(formattedAmount);
+  const safeId = escapeHTML(tx.id);
+
   return `
     <div class="transaction">
       <div>
-        <p class="transaction__title">${tx.title}</p>
+        <p class="transaction__title">${safeTitle}</p>
         <div class="transaction__meta">
-          <span class="badge">${tx.category}</span>
-          <span>${formattedDate}</span>
+          <span class="badge">${safeCategory}</span>
+          <span>${safeDate}</span>
         </div>
       </div>
       <div>
-        <p class="amount ${typeClass}">${formattedAmount}</p>
-        <button class="edit-btn" data-id="${tx.id}">Edit</button>
-        <button class="delete-btn" data-id="${tx.id}">Delete</button>
+        <p class="amount ${typeClass}">${safeAmount}</p>
+        <button class="edit-btn" data-id="${safeId}">Edit</button>
+        <button class="delete-btn" data-id="${safeId}">Delete</button>
       </div>
     </div>
   `;
@@ -433,11 +467,9 @@ const exportToCSV = () => {
     tx.date,
   ]);
 
-  const csv = [headers, ...rows]
-    .map((row) =>
-      row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","),
-    )
-    .join("\n");
+ const csv = [headers, ...rows]
+  .map((row) => row.map(escapeCsvCell).join(","))
+  .join("\n");
 
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);

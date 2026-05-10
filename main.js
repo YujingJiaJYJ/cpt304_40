@@ -67,9 +67,8 @@ const saveTheme = () => {
 const setTheme = (theme) => {
   state.theme = theme;
   document.body.classList.toggle("theme-light", theme === "light");
-  dom.themeToggleBtn.textContent =
-    theme === "light" ? i18n.t("darkMode") : i18n.t("lightMode"); //i18n
   saveTheme();
+  renderI18n();
   requestAnimationFrame(() => renderChart());                                                             //added
 };
 
@@ -566,6 +565,7 @@ const renderI18n = () => {
   set("exportCsvBtn", "exportCsv");
   set("resetFiltersBtn", "resetFilters");
   set("langToggleBtn", "langToggle");
+  dom.themeToggleBtn.textContent = i18n.t(state.theme === "light" ? "darkMode" : "lightMode");
  
   // Summary labels
   set("labelBalance", "totalBalance");

@@ -4,10 +4,10 @@
   --grad-1: #1e293b;                                  /*added*/
   --grad-2: #0ea5e9;
   --grad-3: #7c3aed;
-  --card: rgba(255, 255, 255, 0.08);
+  --card: rgba(30, 41, 59, 0.92);                   /*255, 255, 255, 0.08*/
   --card-strong: rgba(255, 255, 255, 0.14);
   --text: #f8fafc;
-  --muted: #cbd5f5;
+  --muted: #e2e8f0;                                 /* #cbd5f5*/
   --border: rgba(255, 255, 255, 0.12);
   --income: #22c55e;
   --expense: #f43f5e;
@@ -166,6 +166,11 @@ body {
   background: #06064ad1;
   color: var(--text);
 } 
+
+body.theme-light .form__field select option {
+  background: #ffffff;
+  color: #0f172a;
+}
 
 .form__field input:focus,
 .form__field select:focus {
@@ -522,7 +527,7 @@ body.theme-light {
   --grad-1: #dbeafe;                      /*added*/
   --grad-2: #bae6fd;
   --grad-3: #e0e7ff;
-  --card: rgba(15, 23, 42, 0.04);
+  --card: rgba(255, 255, 255, 0.82);          /*15, 23, 42, 0.04*/
   --card-strong: rgba(15, 23, 42, 0.10); /*fixed 0.08->0.10*/
   --text: #0f172a;
   --muted: #475569;
@@ -572,7 +577,7 @@ body.theme-light .bg-gradient {
 
 /*GDPR: Cookie Banner*/
 .cookie-banner {
-  display: none; 
+  display: none; /* hidden by default, shown via JS */
   position: fixed;
   bottom: 24px;
   left: 50%;

@@ -106,7 +106,7 @@ const translations = {
 
   zh: {
     eyebrow: "个人财务",
-    title: "高级财务追踪器",
+    title: "财务支出追踪",
     subtitle: "清晰地追踪您的收入、支出与余额。",
     darkMode: "深色模式",
     lightMode: "浅色模式",

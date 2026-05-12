@@ -144,12 +144,17 @@ const validateForm = () => {
     setError(dom.titleInput, dom.titleError, i18n.t("errTitle") );// i18n
     isValid = false;
   }else if (title.length > 80) {
-  setError(dom.titleInput, dom.titleError, "Title must be 80 characters or fewer.");
+  setError(dom.titleInput, dom.titleError, i18n.t("errTitleLength")); // i18n
   isValid = false;
 }
 
   if (!amountValue || Number.isNaN(amount) || amount === 0) {
     setError(dom.amountInput, dom.amountError, i18n.t("errAmount") );// i18n
+    isValid = false;
+  }
+
+  if (amount < -99999999.99 || amount > 99999999.99) {
+    setError(dom.amountInput, dom.amountError, i18n.t("errAmountRange")); // i18n
     isValid = false;
   }
 

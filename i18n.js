@@ -85,6 +85,10 @@ const translations = {
     toastNoData: "No data to export.",
     toastCsvExported: "CSV exported.",
     toastFixFields: "Please fix the highlighted fields.",
+    toastErrorStorageUnavailable:
+      "LocalStorage is unavailable. Your transactions will not be saved.",
+    toastErrorBrokenStorage:
+      "Broken records in storage, replaced with empty array.",
 
     // Validation
     errTitle: "Title is required.",
@@ -92,6 +96,15 @@ const translations = {
     errCategory: "Select a category.",
     errDate: "Pick a date.",
 
+    // Error log
+    errorStorageUnavailable: (e) =>
+      `LocalStorage or its function(s) unavailable: ${e}.`,
+    errorBrokenStorage: (e) =>
+      `Broken records in storage: ${e}\nHas replaced with empty array.`,
+    errorQuotaExceeded:
+      "Cannot save transaction to local storage: quota limit reached.",
+    errorCannotDelete: (i) => `Nothing to delete: transaction ${i} not found.`,
+    
     // Cookie banner
     cookieText: "We use localStorage to save your data locally. No cookies are sent to any server.",
     cookieAccept: "Accept",
@@ -173,11 +186,18 @@ const translations = {
     toastNoData: "暂无数据可导出。",
     toastCsvExported: "CSV 已导出。",
     toastFixFields: "请修正标记的字段。",
+    toastErrorStorageUnavailable: "本地存储不可用，您的记录将不会被保存。",
+    toastErrorBrokenStorage: "存储记录损坏，已创建空记录替换。",
 
     errTitle: "标题不能为空。",
     errAmount: "请输入有效金额。",
     errCategory: "请选择分类。",
     errDate: "请选择日期。",
+
+    errorStorageUnavailable: (e) => `LocalStorage或其函数不可用：${e}。`,
+    errorBrokenStorage: (e) => `存储记录损坏：${e}\n已创建空记录替换。`,
+    errorQuotaExceeded: "无法保存记录到本地存储：已达容量上限。",
+    errorCannotDelete: (i) => `未找到记录${i}，未进行删除。`,
 
     cookieText: "本应用仅使用 localStorage 在本地保存您的数据，不向任何服务器发送信息。",
     cookieAccept: "接受",
@@ -192,7 +212,7 @@ const translations = {
 
 // i18n state
 const i18n = {
-  locale: localStorage.getItem(LANG_KEY) || "en",
+  locale: storageAvailable ? (localStorage.getItem(LANG_KEY) || "en") : "en",
 
   // Returns translated string for key; supports function values (e.g. plurals)
   t(key, ...args) {
@@ -203,6 +223,8 @@ const i18n = {
   // Switch locale and persist
   setLocale(lang) {
     this.locale = lang;
-    localStorage.setItem(LANG_KEY, lang);
+    if (storageAvailable) {
+      localStorage.setItem(LANG_KEY, lang);
+    }
   },
 };

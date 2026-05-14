@@ -7,9 +7,12 @@
 const CONSENT_KEY = "financeTrackerConsent";
 
 const initGdpr = () => {
-  // Don't show banner if user already responded
-  if (localStorage.getItem(CONSENT_KEY)) return;
-  showCookieBanner();
+  if (storageAvailable) {
+    // Don't show banner if user already responded
+    if (!localStorage.getItem(CONSENT_KEY)) {
+      showCookieBanner();
+    }
+  }
 };
 
 const showCookieBanner = () => {

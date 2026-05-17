@@ -140,3 +140,36 @@ No UI toolkits.
 
 Amirhossein Latifi Navid  
 Front-End Developer
+
+
+# Advanced Finance Tracker
+
+![Coverage Statements](./coverage/badge-statements.svg)
+![Coverage Branches](./coverage/badge-branches.svg)
+![Coverage Lines](./coverage/badge-lines.svg)
+
+## Testing & Coverage
+
+The project includes Jest-based unit testing for core utility logic, including:
+
+- `escapeHTML()`
+- `escapeCsvCell()`
+- `formatCurrency()`
+- `formatDate()`
+- `groupByMonth()`
+- `filterTransactions()`
+
+Run the test suite:
+
+```bash
+npm test
+```
+Generate the local coverage report:
+```bash
+npm run test:coverage
+```
+Generate local coverage badges:
+```bash
+npm run test:badges
+```
+The current local Jest/Istanbul coverage exceeds the required 80% threshold.

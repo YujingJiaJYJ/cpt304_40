@@ -51,18 +51,41 @@ const generateID = () => {
   return `tx_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 };
 
-const saveToLocalStorage = () => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.transactions));
-};
+const saveToLocalStorage = storageAvailable
+  ? () => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.transactions));
+        return true;
+      } catch {
+        return false;
+      }
+    }
+  : () => true;
 
 const loadFromLocalStorage = () => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  state.transactions = stored ? JSON.parse(stored) : [];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    state.transactions = stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    state.transactions = [];
+    saveToLocalStorage();
+    if (e instanceof SyntaxError) {
+      showToast(i18n.t("toastErrorBrokenStorage"), "error");
+      console.error(i18n.t("errorBrokenStorage", e.message));
+    } else {
+      showToast(i18n.t("toastErrorStorageUnavailable"), "error");
+      console.warn(i18n.t("errorStorageUnavailable"), e.message);
+    }
+  }
 };
 
-const saveTheme = () => {
-  localStorage.setItem(THEME_KEY, state.theme);
-};
+const saveTheme = storageAvailable
+  ? () => {
+      try {
+        localStorage.setItem(THEME_KEY, state.theme);
+      } catch {}
+    }
+  : () => {};
 
 const setTheme = (theme) => {
   state.theme = theme;
@@ -73,7 +96,9 @@ const setTheme = (theme) => {
 };
 
 const loadTheme = () => {
-  const storedTheme = localStorage.getItem(THEME_KEY);
+  const storedTheme = storageAvailable ? (
+    localStorage.getItem(THEME_KEY)
+  ) : "dark";
   setTheme(storedTheme || "dark");
 };
 
@@ -190,11 +215,15 @@ const addTransaction = () => {
   const category = dom.categoryInput.value;
   const date = dom.dateInput.value;
 
+  let key;
+  let idx;
+  let editTarget;
+
   if (state.editingId) {
-    state.transactions = state.transactions.map((tx) =>
-      tx.id === state.editingId ? { ...tx, title, amount, category, date } : tx,
-    );
-    showToast(i18n.t("toastUpdated")); //i18n
+    idx = state.transactions.findIndex((tx) => tx.id === state.editingId);
+    editTarget = { ...state.transactions[idx] };
+    state.transactions[idx] = { ...editTarget, title, amount, category, date };
+    key = "toastUpdated";
   } else {
     const newTransaction = {
       id: generateID(),
@@ -204,12 +233,21 @@ const addTransaction = () => {
       date,
     };
 
-    state.transactions = [newTransaction, ...state.transactions];
-    showToast(i18n.t("toastAdded")); //i18n
+    state.transactions.unshift(newTransaction);
+    key = "toastAdded";
   }
 
+  if (saveToLocalStorage()) {
+    showToast(i18n.t(key));
+  } else {
+    if (state.editingId) {
+      state.transactions[idx] = editTarget;
+    } else {
+      state.transactions.shift();
+    }
+    showToast(i18n.t("errorQuotaExceeded"));
+  }
   resetFormState();
-  saveToLocalStorage();
   renderApp();
 };
 
@@ -230,10 +268,19 @@ const startEditing = (id) => {
 };
 
 const deleteTransaction = (id) => {
-  state.transactions = state.transactions.filter((tx) => tx.id !== id);
-  saveToLocalStorage();
+  const idx = state.transactions.findIndex((tx) => tx.id === id);
+  if (idx !== -1) {
+    const toDelete = state.transactions.splice(idx, 1)[0];
+    if (saveToLocalStorage()) {
+      showToast(i18n.t("toastDeleted"));
+    } else {
+      state.transactions.splice(idx, 0, toDelete);
+      showToast(i18n.t("errorQuotaExceeded"));
+    }
+  } else {
+    showToast(i18n.t("errorCannotDelete", id));
+  }
   renderApp();
-  showToast(i18n.t("toastDeleted")); //i18n
 };
 
 const openConfirmModal = (id) => {

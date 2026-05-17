@@ -140,21 +140,35 @@ No UI toolkits.
 
 Amirhossein Latifi Navid  
 Front-End Developer
+
+
 # Advanced Finance Tracker
 
 ![Coverage Statements](./coverage/badge-statements.svg)
 ![Coverage Branches](./coverage/badge-branches.svg)
 ![Coverage Lines](./coverage/badge-lines.svg)
 
-A portfolio-level personal finance management application built with HTML, CSS, and Vanilla JavaScript.
+## Testing & Coverage
 
-## Overview
+The project includes Jest-based unit testing for core utility logic, including:
 
-This project provides a browser-based personal finance tracker with transaction management, filtering, CSV export, dashboard summaries, theme switching, and local persistence.
-
-## Testing
+- `escapeHTML()`
+- `escapeCsvCell()`
+- `formatCurrency()`
+- `formatDate()`
+- `groupByMonth()`
+- `filterTransactions()`
 
 Run the test suite:
 
 ```bash
 npm test
+Generate the local coverage report:
+
+npm run test:coverage
+
+Generate local coverage badges:
+
+npm run test:badges
+
+The current local Jest/Istanbul coverage exceeds the required 80% threshold.

@@ -36,7 +36,7 @@ const translations = {
     labelCategory: "Category",
     labelDate: "Date",
     placeholderTitle: "e.g., Freelance Payment",
-    placeholderAmount: "e.g., 1200 or -45",
+    placeholderAmount: "e.g., 1200.50 or -45.99",
     placeholderSearch: "Start typing...",
     selectCategory: "Select category",
     submitBtn: "Add Transaction",
@@ -88,7 +88,9 @@ const translations = {
 
     // Validation
     errTitle: "Title is required.",
+    errTitleLength: "Title must be 80 characters or fewer.",
     errAmount: "Enter a valid amount.",
+    errAmountRange: "Amount must be between -99999999.99 and 99999999.99.",
     errCategory: "Select a category.",
     errDate: "Pick a date.",
 
@@ -129,7 +131,7 @@ const translations = {
     labelCategory: "分类",
     labelDate: "日期",
     placeholderTitle: "例：自由职业收款",
-    placeholderAmount: "例：1200 或 -45",
+    placeholderAmount: "例：1200.50 或 -45.99",
     placeholderSearch: "输入搜索...",
     selectCategory: "选择分类",
     submitBtn: "添加记录",
@@ -175,7 +177,9 @@ const translations = {
     toastFixFields: "请修正标记的字段。",
 
     errTitle: "标题不能为空。",
+    errTitleLength: "标题不能超过80个字符。",
     errAmount: "请输入有效金额。",
+    errAmountRange: "金额范围必须在 -99999999.99 至 99999999.99 之间。",
     errCategory: "请选择分类。",
     errDate: "请选择日期。",
 

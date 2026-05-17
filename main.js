@@ -144,12 +144,17 @@ const validateForm = () => {
     setError(dom.titleInput, dom.titleError, i18n.t("errTitle") );// i18n
     isValid = false;
   }else if (title.length > 80) {
-  setError(dom.titleInput, dom.titleError, "Title must be 80 characters or fewer.");
+  setError(dom.titleInput, dom.titleError, i18n.t("errTitleLength")); // i18n
   isValid = false;
 }
 
   if (!amountValue || Number.isNaN(amount) || amount === 0) {
     setError(dom.amountInput, dom.amountError, i18n.t("errAmount") );// i18n
+    isValid = false;
+  }
+
+  if (amount < -99999999.99 || amount > 99999999.99) {
+    setError(dom.amountInput, dom.amountError, i18n.t("errAmountRange")); // i18n
     isValid = false;
   }
 
@@ -404,8 +409,12 @@ const renderChart = () => {
   );
 
   const maxValue = Math.max(income, expenses, 1);
-  const barWidth = 120;
-  const gap = 80;
+  const minBarWidth = 40;
+  const maxBarWidth = 120;
+  const minGap = 40;
+  const maxGap = 80;
+  const barWidth = Math.max(minBarWidth, Math.min(maxBarWidth, (width - 100) / 4));
+  const gap = Math.max(minGap, Math.min(maxGap, (width - 100) / 5));
   const baseY = height - 40;
 
   const incomeHeight = (income / maxValue) * (height - 80);
@@ -416,18 +425,23 @@ const renderChart = () => {
   const textColor = isLight ? "#0f172a" : "#f8fafc";
   const mutedColor = isLight ? "#475569" : "rgba(255,255,255,0.2)";
 
-   ctx.strokeStyle = mutedColor; // i18n: uses theme-aware muted color
+  const totalBarsWidth = barWidth * 2 + gap;
+  const startX = (width - totalBarsWidth) / 2;
+  const incomeX = startX;
+  const expenseX = startX + barWidth + gap;
+
+  ctx.strokeStyle = mutedColor; // i18n: uses theme-aware muted color
   ctx.beginPath();
   ctx.moveTo(40, baseY);
   ctx.lineTo(width - 40, baseY);
   ctx.stroke();
 
   ctx.fillStyle = "#22c55e";
-  ctx.fillRect(160, baseY - incomeHeight, barWidth, incomeHeight);
+  ctx.fillRect(incomeX, baseY - incomeHeight, barWidth, incomeHeight);
 
   ctx.fillStyle = "#f97316";
   ctx.fillRect(
-    160 + barWidth + gap,
+    expenseX,
     baseY - expenseHeight,
     barWidth,
     expenseHeight,
@@ -435,13 +449,13 @@ const renderChart = () => {
 
   ctx.fillStyle = textColor;            /*change to textcolor */
   ctx.font = "14px sans-serif";    
-  ctx.fillText(i18n.t("chartIncome"), 170, baseY + 20); // i18n
-  ctx.fillText(i18n.t("chartExpense"), 160 + barWidth + gap, baseY + 20); // i18n
+  ctx.fillText(i18n.t("chartIncome"), incomeX + barWidth / 2 - 30, baseY + 20); // i18n
+  ctx.fillText(i18n.t("chartExpense"), expenseX + barWidth / 2 - 40, baseY + 20); // i18n
 
-  ctx.fillText(formatCurrency(income), 150, baseY - incomeHeight - 10);
+  ctx.fillText(formatCurrency(income), incomeX + barWidth / 2 - 40, baseY - incomeHeight - 10);
   ctx.fillText(
     formatCurrency(expenses),
-    150 + barWidth + gap,
+    expenseX + barWidth / 2 - 40,
     baseY - expenseHeight - 10,
   );
 };

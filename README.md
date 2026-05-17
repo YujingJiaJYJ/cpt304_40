@@ -163,12 +163,13 @@ Run the test suite:
 
 ```bash
 npm test
-Generate the local coverage report:
 
+Generate the local coverage report:
+```bash
 npm run test:coverage
 
 Generate local coverage badges:
-
+```bash
 npm run test:badges
 
 The current local Jest/Istanbul coverage exceeds the required 80% threshold.

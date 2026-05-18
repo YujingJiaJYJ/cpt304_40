@@ -1,13 +1,19 @@
 "use strict";
 
-const storageAvailable = ((prop) => {
+// Credit: Adopted from MDN Web Docs (https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API).
+const storageAvailable = ((type) => {
   try {
-    const storage = window[prop];
+    const storage = window[type];
     const x = "__storage_test__";
     storage.setItem(x, x);
     storage.removeItem(x);
     return true;
-  } catch {
-    return false;
+  } catch (e) {
+    return (
+      e instanceof DOMException &&
+      e.name === "QuotaExceededError" &&
+      storage &&
+      storage.length !== 0
+    );
   }
 })("localStorage");

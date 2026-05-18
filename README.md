@@ -147,6 +147,7 @@ Front-End Developer
 ![Coverage Statements](./coverage/badge-statements.svg)
 ![Coverage Branches](./coverage/badge-branches.svg)
 ![Coverage Lines](./coverage/badge-lines.svg)
+![Accessibility](./lighthouse_accessibility.svg)
 
 ## Testing & Coverage
 

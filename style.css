@@ -109,7 +109,8 @@ body {
 }
 
 .summary__value {
-  font-size: 28px;
+  font-size: clamp(14px, 3.5vw, 24px);
+  min-width: 0;
 }
 
 .summary__value--income {
@@ -587,7 +588,6 @@ body.theme-light .bg-gradient {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px 20px;
-  display: flex;
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;

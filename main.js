@@ -51,18 +51,41 @@ const generateID = () => {
   return `tx_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 };
 
-const saveToLocalStorage = () => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.transactions));
-};
+const saveToLocalStorage = storageAvailable
+  ? () => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.transactions));
+        return true;
+      } catch {
+        return false;
+      }
+    }
+  : () => true;
 
 const loadFromLocalStorage = () => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  state.transactions = stored ? JSON.parse(stored) : [];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    state.transactions = stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    state.transactions = [];
+    saveToLocalStorage();
+    if (e instanceof SyntaxError) {
+      showToast(i18n.t("toastErrorBrokenStorage"), "error");
+      console.error(i18n.t("errorBrokenStorage", e.message));
+    } else {
+      showToast(i18n.t("toastErrorStorageUnavailable"), "error");
+      console.warn(i18n.t("errorStorageUnavailable"), e.message);
+    }
+  }
 };
 
-const saveTheme = () => {
-  localStorage.setItem(THEME_KEY, state.theme);
-};
+const saveTheme = storageAvailable
+  ? () => {
+      try {
+        localStorage.setItem(THEME_KEY, state.theme);
+      } catch {}
+    }
+  : () => {};
 
 const setTheme = (theme) => {
   state.theme = theme;
@@ -73,7 +96,9 @@ const setTheme = (theme) => {
 };
 
 const loadTheme = () => {
-  const storedTheme = localStorage.getItem(THEME_KEY);
+  const storedTheme = storageAvailable ? (
+    localStorage.getItem(THEME_KEY)
+  ) : "dark";
   setTheme(storedTheme || "dark");
 };
 
@@ -144,12 +169,17 @@ const validateForm = () => {
     setError(dom.titleInput, dom.titleError, i18n.t("errTitle") );// i18n
     isValid = false;
   }else if (title.length > 80) {
-  setError(dom.titleInput, dom.titleError, "Title must be 80 characters or fewer.");
+  setError(dom.titleInput, dom.titleError, i18n.t("errTitleLength")); // i18n
   isValid = false;
 }
 
   if (!amountValue || Number.isNaN(amount) || amount === 0) {
     setError(dom.amountInput, dom.amountError, i18n.t("errAmount") );// i18n
+    isValid = false;
+  }
+
+  if (amount < -99999999.99 || amount > 99999999.99) {
+    setError(dom.amountInput, dom.amountError, i18n.t("errAmountRange")); // i18n
     isValid = false;
   }
 
@@ -185,11 +215,15 @@ const addTransaction = () => {
   const category = dom.categoryInput.value;
   const date = dom.dateInput.value;
 
+  let key;
+  let idx;
+  let editTarget;
+
   if (state.editingId) {
-    state.transactions = state.transactions.map((tx) =>
-      tx.id === state.editingId ? { ...tx, title, amount, category, date } : tx,
-    );
-    showToast(i18n.t("toastUpdated")); //i18n
+    idx = state.transactions.findIndex((tx) => tx.id === state.editingId);
+    editTarget = { ...state.transactions[idx] };
+    state.transactions[idx] = { ...editTarget, title, amount, category, date };
+    key = "toastUpdated";
   } else {
     const newTransaction = {
       id: generateID(),
@@ -199,12 +233,21 @@ const addTransaction = () => {
       date,
     };
 
-    state.transactions = [newTransaction, ...state.transactions];
-    showToast(i18n.t("toastAdded")); //i18n
+    state.transactions.unshift(newTransaction);
+    key = "toastAdded";
   }
 
+  if (saveToLocalStorage()) {
+    showToast(i18n.t(key));
+  } else {
+    if (state.editingId) {
+      state.transactions[idx] = editTarget;
+    } else {
+      state.transactions.shift();
+    }
+    showToast(i18n.t("errorQuotaExceeded"));
+  }
   resetFormState();
-  saveToLocalStorage();
   renderApp();
 };
 
@@ -225,10 +268,19 @@ const startEditing = (id) => {
 };
 
 const deleteTransaction = (id) => {
-  state.transactions = state.transactions.filter((tx) => tx.id !== id);
-  saveToLocalStorage();
+  const idx = state.transactions.findIndex((tx) => tx.id === id);
+  if (idx !== -1) {
+    const toDelete = state.transactions.splice(idx, 1)[0];
+    if (saveToLocalStorage()) {
+      showToast(i18n.t("toastDeleted"));
+    } else {
+      state.transactions.splice(idx, 0, toDelete);
+      showToast(i18n.t("errorQuotaExceeded"));
+    }
+  } else {
+    showToast(i18n.t("errorCannotDelete", id));
+  }
   renderApp();
-  showToast(i18n.t("toastDeleted")); //i18n
 };
 
 const openConfirmModal = (id) => {
@@ -295,9 +347,15 @@ const renderTransactionItem = (tx) => {
   const typeClass = tx.amount >= 0 ? "amount--income" : "amount--expense";
   const formattedAmount = formatCurrency(tx.amount);
   const formattedDate = formatDate(tx.date);
-
   const safeTitle = escapeHTML(tx.title);
-  const safeCategory = escapeHTML(tx.category);
+  const catKeyMap = {
+    Salary:"catSalary", Business:"catBusiness", Investments:"catInvestments",
+    Housing:"catHousing", Food:"catFood", Transport:"catTransport",
+    Health:"catHealth", Entertainment:"catEntertainment",
+    Education:"catEducation", Other:"catOther",
+  };
+  const catI18nKey = catKeyMap[tx.category];
+  const safeCategory = escapeHTML(catI18nKey ? i18n.t(catI18nKey) : tx.category);
   const safeDate = escapeHTML(formattedDate);
   const safeAmount = escapeHTML(formattedAmount);
   const safeId = escapeHTML(tx.id);
@@ -404,8 +462,12 @@ const renderChart = () => {
   );
 
   const maxValue = Math.max(income, expenses, 1);
-  const barWidth = 120;
-  const gap = 80;
+  const minBarWidth = 40;
+  const maxBarWidth = 120;
+  const minGap = 40;
+  const maxGap = 80;
+  const barWidth = Math.max(minBarWidth, Math.min(maxBarWidth, (width - 100) / 4));
+  const gap = Math.max(minGap, Math.min(maxGap, (width - 100) / 5));
   const baseY = height - 40;
 
   const incomeHeight = (income / maxValue) * (height - 80);
@@ -416,18 +478,23 @@ const renderChart = () => {
   const textColor = isLight ? "#0f172a" : "#f8fafc";
   const mutedColor = isLight ? "#475569" : "rgba(255,255,255,0.2)";
 
-   ctx.strokeStyle = mutedColor; // i18n: uses theme-aware muted color
+  const totalBarsWidth = barWidth * 2 + gap;
+  const startX = (width - totalBarsWidth) / 2;
+  const incomeX = startX;
+  const expenseX = startX + barWidth + gap;
+
+  ctx.strokeStyle = mutedColor; // i18n: uses theme-aware muted color
   ctx.beginPath();
   ctx.moveTo(40, baseY);
   ctx.lineTo(width - 40, baseY);
   ctx.stroke();
 
   ctx.fillStyle = "#22c55e";
-  ctx.fillRect(160, baseY - incomeHeight, barWidth, incomeHeight);
+  ctx.fillRect(incomeX, baseY - incomeHeight, barWidth, incomeHeight);
 
   ctx.fillStyle = "#f97316";
   ctx.fillRect(
-    160 + barWidth + gap,
+    expenseX,
     baseY - expenseHeight,
     barWidth,
     expenseHeight,
@@ -435,13 +502,13 @@ const renderChart = () => {
 
   ctx.fillStyle = textColor;            /*change to textcolor */
   ctx.font = "14px sans-serif";    
-  ctx.fillText(i18n.t("chartIncome"), 170, baseY + 20); // i18n
-  ctx.fillText(i18n.t("chartExpense"), 160 + barWidth + gap, baseY + 20); // i18n
+  ctx.fillText(i18n.t("chartIncome"), incomeX + barWidth / 2 - 30, baseY + 20); // i18n
+  ctx.fillText(i18n.t("chartExpense"), expenseX + barWidth / 2 - 40, baseY + 20); // i18n
 
-  ctx.fillText(formatCurrency(income), 150, baseY - incomeHeight - 10);
+  ctx.fillText(formatCurrency(income), incomeX + barWidth / 2 - 40, baseY - incomeHeight - 10);
   ctx.fillText(
     formatCurrency(expenses),
-    150 + barWidth + gap,
+    expenseX + barWidth / 2 - 40,
     baseY - expenseHeight - 10,
   );
 };

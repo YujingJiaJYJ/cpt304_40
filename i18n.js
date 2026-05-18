@@ -76,6 +76,8 @@ const translations = {
     deleteText: "This action cannot be undone.",
     cancel: "Cancel",
     delete: "Delete",
+    edit: "Edit",
+    deleteBtn: "Delete",
 
     // Toast
     toastAdded: "Transaction added.",
@@ -165,6 +167,8 @@ const translations = {
     deleteText: "此操作不可撤销。",
     cancel: "取消",
     delete: "删除",
+    edit: "编辑",
+    deleteBtn: "删除",
 
     toastAdded: "记录已添加。",
     toastUpdated: "记录已更新。",

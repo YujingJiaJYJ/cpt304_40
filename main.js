@@ -313,8 +313,8 @@ const renderTransactionItem = (tx) => {
       </div>
       <div>
         <p class="amount ${typeClass}">${safeAmount}</p>
-        <button class="edit-btn" data-id="${safeId}">Edit</button>
-        <button class="delete-btn" data-id="${safeId}">Delete</button>
+        <button class="edit-btn" data-id="${safeId}">${i18n.t("edit")}</button>
+        <button class="delete-btn" data-id="${safeId}">${i18n.t("deleteBtn")}</button>
       </div>
     </div>
   `;

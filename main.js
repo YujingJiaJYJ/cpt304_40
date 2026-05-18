@@ -295,9 +295,15 @@ const renderTransactionItem = (tx) => {
   const typeClass = tx.amount >= 0 ? "amount--income" : "amount--expense";
   const formattedAmount = formatCurrency(tx.amount);
   const formattedDate = formatDate(tx.date);
-
   const safeTitle = escapeHTML(tx.title);
-  const safeCategory = escapeHTML(tx.category);
+  const catKeyMap = {
+    Salary:"catSalary", Business:"catBusiness", Investments:"catInvestments",
+    Housing:"catHousing", Food:"catFood", Transport:"catTransport",
+    Health:"catHealth", Entertainment:"catEntertainment",
+    Education:"catEducation", Other:"catOther",
+  };
+  const catI18nKey = catKeyMap[tx.category];
+  const safeCategory = escapeHTML(catI18nKey ? i18n.t(catI18nKey) : tx.category);
   const safeDate = escapeHTML(formattedDate);
   const safeAmount = escapeHTML(formattedAmount);
   const safeId = escapeHTML(tx.id);
